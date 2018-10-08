@@ -1,0 +1,151 @@
+var deviceID=null;
+var map;
+var geocoder;
+function GettingDeviceId(){
+ document.addEventListener("deviceready", onDeviceReady, false);
+    function onDeviceReady() {
+    deviceID=device.uuid;
+    console.log('device id '+deviceID);
+    getLocation();
+
+    }
+}
+
+function getLocation() {
+console.log('device location working ');
+
+     if (navigator.geolocation) {
+         navigator.geolocation.getCurrentPosition(showPosition);
+        }
+        else {
+        alert("Geolocation is not supported by this browser.");
+                    }
+}
+function showPosition(position) {
+//alert('position  '+position);
+console.log('device location '+position);
+console.log('device location '+position.coords.latitude);
+console.log('device location '+position.coords.longitude);
+var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            var geoCoder = new google.maps.Geocoder();
+            geoCoder.geocode({ 'latLng': latlng }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[1]) {
+                        alert("Location: " + results[1].formatted_address);
+                    }
+                }
+            });
+  var latlngPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  var myOptions = {
+     zoom: 17,
+     center: latlngPos,
+     mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+  var map = new google.maps.Map(document.getElementById("map"), myOptions);
+var markerPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+var marker = new google.maps.Marker({
+   position: markerPos,
+   map: map,
+   title: ""
+});
+}
+
+function LoggingIn(){
+
+	var cname = document.getElementById('company').value;
+	var cuname = document.getElementById('user').value;
+	var cpword = document.getElementById('pass').value;
+	var checkBox = document.getElementById('checkbox');
+	if(cname=="")
+	{
+	//alert("please enter company id");
+	window.plugins.toast.showExShortBottom('please enter company id!!')
+	return;
+	}
+	if(cuname=="")
+	{
+	//alert("please enter user name");
+	window.plugins.toast.showExShortBottom('please enter user name!!')
+	return;
+	}
+	if(cpword=="")
+	{
+	//alert("please enter password");
+	window.plugins.toast.showExShortBottom('please enter password!!')
+	return;
+	}
+
+	if(deviceID==""&&deviceID!=null){
+    window.plugins.toast.showExShortBottom('Device ID null!!')
+    return;
+    }
+
+  if (checkBox.checked == false){
+     window.plugins.toast.showExShortBottom('Hey, you need to check and agree to Terms and Conditions!!')
+     return;
+     }
+
+	$.ajax({
+		url: "http://122.175.39.60/ServiceHO/login/test.php",
+		data: {compid: cname, username: cuname, regId: regId, deviceID: deviceID, password: cpword, version: "123", brand: "abc", model: "abc", apilevel: "123", androidversion: "123", location: "123", latitude: "123", longitude: "123", accuracy: "123"},
+		type: "POST",
+		success: function(msg){
+			//alert(""+msg);
+			var obj = JSON.parse(msg);
+ 			if(obj.result=="success"){
+				 if(localStorage){
+            console.log("database created");
+            localStorage.setItem("compid", cname);
+            localStorage.setItem("uname", cuname);
+						localStorage.setItem("city", obj.city);
+						localStorage.setItem("role", obj.role);
+						localStorage.setItem("comp_name", obj.comp_name);
+						localStorage.setItem("compLogo", obj.compLogo);
+						localStorage.setItem("department", obj.department);
+						localStorage.setItem("salesModule", obj.salesModule);
+						localStorage.setItem("serviceModule", obj.serviceModule);
+						localStorage.setItem("projectModule", obj.projectModule);
+						localStorage.setItem("orderModule", obj.orderModule);
+						localStorage.setItem("comp_type", obj.comp_type);
+        } else{
+            window.plugins.toast.showExShortBottom('Sorry, your browser does not support local storage.');
+        }
+			}else if(obj.result=="Account has been Deactivated!"){
+           window.plugins.toast.showExShortBottom('Hi user, your account has been Deactivated. Kindly contact" + " admin for more details.')
+        }
+       	else{
+       			window.plugins.toast.showExShortBottom(obj.result)
+       	}
+		},
+		error: function(err){
+			window.plugins.toast.showExShortBottom('Unable to connect to server, Try again.!!')
+		}
+	});
+}
+
+/*function searchAddress() {
+  var addressInput = document.getElementById('address-input').value;
+  var geocoder = new google.maps.Geocoder();
+  geocoder.geocode({address: addressInput}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      var myResult = results[0].geometry.location; // reference LatLng value
+      createMarker(myResult); // call the function that adds the marker
+      map.setCenter(myResult);
+      map.setZoom(17);
+    }
+  });
+}
+
+function createMarker(latlng) {
+   // If the user makes another search you must clear the marker variable
+   if(marker != undefined && marker != ''){
+    marker.setMap(null);
+    marker = '';
+   }
+   marker = new google.maps.Marker({
+      map: map,
+      position: latlng
+   });
+}*/
+
+
