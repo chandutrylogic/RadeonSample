@@ -8,3 +8,12 @@ VIII. Submodules
 49. Pitfalls with submodules
 IX. Low-level Git operations
 50. Object access and manipulation
+51. The Workflow
+working directory ? index
+index ? object database
+object database ? index
+index ? working directory
+Tying it all together
+52. Examining the data
+53. Merging multiple trees
+54. Merging multiple trees, continued
